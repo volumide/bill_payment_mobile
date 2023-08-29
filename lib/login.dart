@@ -1,7 +1,12 @@
 // ignore_for_file: prefer_const_constructors
 
 // import 'package:flutter/foundation.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'signup.dart';
 
 class Login extends StatelessWidget {
@@ -30,12 +35,36 @@ class LoginForm extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  Future<void> _login(BuildContext context) async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    try {
+      final response = await http.post(
+          Uri.parse('http://10.0.2.2:5000/api/login'),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({'email': email, 'password': password}));
+
+      if (response.statusCode == 200) {
+        final result = await json.decode(response.body);
+
+        // ignore: use_build_context_synchronously
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Signup()));
+
+        // print(response.body);
+      }
+    } catch (e) {
+      // print(e);
+    }
+  }
+
   void performLogin() {
     // ignore: avoid_print
     print("login here");
   }
 
-  String? validation(value) {
+  String? validation(value, {email = false}) {
     if (value == "" || value!.isEmpty) {
       return "required";
     }
@@ -95,9 +124,11 @@ class LoginForm extends State<LoginPage> {
               child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
+                      _login(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Processing Data")));
                     }
+
                     // performLogin();
                     // Navigator.push(context,
                     //     MaterialPageRoute(builder: (context) => Signup()));

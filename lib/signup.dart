@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 // import 'package:flutter/foundation.dart';
+import 'package:email_validator/email_validator.dart';
 
 import 'package:flutter/material.dart';
 import 'login.dart';
@@ -30,15 +31,34 @@ class SignupPage extends StatefulWidget {
 class SignUpForm extends State<SignupPage> {
   // const SignUpForm({super.key});
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstName = TextEditingController();
+  final TextEditingController _last_name = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _phone = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+
+  void signup() async {
+    String firstName = _firstName.text;
+    String last_name = _last_name.text;
+    String email = _last_name.text;
+    String phone = _last_name.text;
+    String password = _last_name.text;
+  }
 
   void logic() {
     // ignore: avoid_print
     print("login here");
   }
 
-  String? validation(value) {
+  String? validation(value, {bool email = false}) {
     if (value == "" || value!.isEmpty) {
       return "required";
+    }
+    if (email) {
+      bool isvalid = EmailValidator.validate(value);
+      if (!isvalid) {
+        return "invalid email";
+      }
     }
     return null;
   }
@@ -60,88 +80,49 @@ class SignUpForm extends State<SignupPage> {
                           TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                     ))),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+              padding: paddingSettings(),
               child: TextFormField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none // Set the border radius
-                      ),
-                  fillColor: Colors.grey.shade200,
-                  filled: true,
-                  hintText: 'First Name',
-                ),
+                  validator: validation, decoration: textcss("First name")),
+            ),
+            Padding(
+              padding: paddingSettings(),
+              child: TextFormField(
+                  validator: validation, decoration: textcss("Last name")),
+            ),
+            Padding(
+              padding: paddingSettings(),
+              child: TextFormField(
+                validator: (value) => validation(value, email: true),
+                keyboardType: TextInputType.emailAddress,
+                decoration: textcss("Email"),
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                padding: paddingSettings(),
+                child: TextFormField(
+                    validator: validation,
+                    decoration: textcss("Phone"),
+                    keyboardType: TextInputType.number)),
+            Padding(
+              padding: paddingSettings(),
               child: TextFormField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none // Set the border radius
-                      ),
-                  fillColor: Colors.grey.shade200,
-                  filled: true,
-                  hintText: 'Last Name',
-                ),
-              ),
+                  validator: validation,
+                  obscureText: true,
+                  decoration: textcss("Password")),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 16),
-              child: TextFormField(
-                validator: validation,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none // Set the border radius
-                      ),
-                  fillColor: Colors.grey.shade200,
-                  filled: true,
-                  hintText: 'Email',
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 16),
-              child: TextFormField(
-                validator: validation,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none // Set the border radius
-                      ),
-                  filled: true,
-                  fillColor: Colors.grey.shade200,
-                  hintText: 'Phone Number',
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 16),
-              child: TextFormField(
-                validator: validation,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none // Set the border radius
-                      ),
-                  fillColor: Colors.grey.shade200,
-                  filled: true,
-                  hintText: 'Password',
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+              padding: paddingSettings(),
               child: ElevatedButton(
                   onPressed: () {
-                    logic();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Login(),
-                        ));
+                    if (_formKey.currentState!.validate()) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Processing Data")));
+                    }
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => Login(),
+                    //     ));
                   },
                   // ignore: deprecated_member_use
                   style: ElevatedButton.styleFrom(
@@ -154,5 +135,20 @@ class SignUpForm extends State<SignupPage> {
             )
           ],
         ));
+  }
+
+  EdgeInsets paddingSettings() =>
+      EdgeInsets.symmetric(horizontal: 30, vertical: 16);
+
+  InputDecoration textcss(hint) {
+    return InputDecoration(
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide.none // Set the border radius
+          ),
+      fillColor: Colors.grey.shade200,
+      filled: true,
+      hintText: hint,
+    );
   }
 }
