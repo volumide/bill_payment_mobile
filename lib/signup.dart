@@ -1,10 +1,12 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
 // import 'package:flutter/foundation.dart';
+import 'dart:convert';
 import 'package:email_validator/email_validator.dart';
 
 import 'package:flutter/material.dart';
 import 'login.dart';
+import 'package:http/http.dart' as http;
 
 class Signup extends StatelessWidget {
   const Signup({super.key});
@@ -32,17 +34,52 @@ class SignUpForm extends State<SignupPage> {
   // const SignUpForm({super.key});
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _firstName = TextEditingController();
-  final TextEditingController _last_name = TextEditingController();
+  final TextEditingController _lastName = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _phone = TextEditingController();
   final TextEditingController _password = TextEditingController();
 
-  void signup() async {
+  Future<void> signup() async {
     String firstName = _firstName.text;
-    String last_name = _last_name.text;
-    String email = _last_name.text;
-    String phone = _last_name.text;
-    String password = _last_name.text;
+    String lastName = _lastName.text;
+    String email = _email.text;
+    String phone = _phone.text;
+    String password = _password.text;
+
+    try {
+      final response =
+          await http.post(Uri.parse('http://10.0.2.2:5000/api/signup'),
+              headers: {"Content-Type": "application/json"},
+              body: jsonEncode({
+                'email': email,
+                'password': password,
+                'first_name': firstName,
+                'last_name': lastName,
+                'phone': phone
+              }));
+      final result = await json.decode(response.body);
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(result['message']),
+          duration: Duration(seconds: 1),
+          backgroundColor: Colors.red.shade800,
+        ));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Login()));
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(result['message']),
+        duration: Duration(seconds: 1),
+        backgroundColor: Colors.red.shade800,
+      ));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("server error"),
+        duration: Duration(seconds: 1),
+        backgroundColor: Colors.red.shade800,
+      ));
+    }
   }
 
   void logic() {
@@ -82,16 +119,21 @@ class SignUpForm extends State<SignupPage> {
             Padding(
               padding: paddingSettings(),
               child: TextFormField(
-                  validator: validation, decoration: textcss("First name")),
+                  controller: _firstName,
+                  validator: validation,
+                  decoration: textcss("First name")),
             ),
             Padding(
               padding: paddingSettings(),
               child: TextFormField(
-                  validator: validation, decoration: textcss("Last name")),
+                  controller: _lastName,
+                  validator: validation,
+                  decoration: textcss("Last name")),
             ),
             Padding(
               padding: paddingSettings(),
               child: TextFormField(
+                controller: _email,
                 validator: (value) => validation(value, email: true),
                 keyboardType: TextInputType.emailAddress,
                 decoration: textcss("Email"),
@@ -100,12 +142,14 @@ class SignUpForm extends State<SignupPage> {
             Padding(
                 padding: paddingSettings(),
                 child: TextFormField(
+                    controller: _phone,
                     validator: validation,
                     decoration: textcss("Phone"),
                     keyboardType: TextInputType.number)),
             Padding(
               padding: paddingSettings(),
               child: TextFormField(
+                  controller: _password,
                   validator: validation,
                   obscureText: true,
                   decoration: textcss("Password")),
@@ -115,14 +159,8 @@ class SignUpForm extends State<SignupPage> {
               child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Processing Data")));
+                      signup();
                     }
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => Login(),
-                    //     ));
                   },
                   // ignore: deprecated_member_use
                   style: ElevatedButton.styleFrom(

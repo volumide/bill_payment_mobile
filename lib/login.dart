@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
 // import 'package:flutter/foundation.dart';
 import 'dart:convert';
@@ -45,23 +45,29 @@ class LoginForm extends State<LoginPage> {
           headers: {"Content-Type": "application/json"},
           body: jsonEncode({'email': email, 'password': password}));
 
+      final result = await json.decode(response.body);
       if (response.statusCode == 200) {
-        final result = await json.decode(response.body);
-
-        // ignore: use_build_context_synchronously
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Signup()));
-
-        // print(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(result['message'] ?? "login successful"),
+          duration: Duration(seconds: 1),
+          backgroundColor: Colors.red.shade800,
+        ));
+        return;
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => BillPage()));
       }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("login succesful"),
+        duration: Duration(seconds: 1),
+        backgroundColor: Colors.red.shade800,
+      ));
     } catch (e) {
-      // print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("server error"),
+        duration: Duration(seconds: 1),
+        backgroundColor: Colors.red.shade800,
+      ));
     }
-  }
-
-  void performLogin() {
-    // ignore: avoid_print
-    print("login here");
   }
 
   String? validation(value, {email = false}) {
@@ -125,8 +131,6 @@ class LoginForm extends State<LoginPage> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _login(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Processing Data")));
                     }
 
                     // performLogin();
