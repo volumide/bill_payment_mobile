@@ -82,11 +82,19 @@ class TransactionContainer extends State<TransactionState> {
       }
 
       if (response.statusCode >= 400) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(result['data']['response_description']),
-          duration: const Duration(seconds: 2),
-          backgroundColor: Colors.red.shade800,
-        ));
+        if (!result['data']) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(result['message']),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.red.shade800,
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(result['data']['response_description']),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Colors.red.shade800,
+          ));
+        }
       }
     } catch (e) {
       // print(e);
