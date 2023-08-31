@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'signup.dart';
+import "bill.dart";
 
 void main() {
   runApp(const MyApp());
@@ -14,8 +15,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: Login(),
+      home: const Login(),
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -38,7 +40,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         "/login": (context) => const Login(),
-        "/signup": (context) => const Signup()
+        "/signup": (context) => const Signup(),
+        "/bill": (context) => const Bill()
       },
       // home: const MyHomePage(title: 'Start'),
     );

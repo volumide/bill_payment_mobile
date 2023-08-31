@@ -4,10 +4,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'signup.dart';
+import 'bill.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
@@ -34,6 +35,16 @@ class LoginForm extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final storage = FlutterSecureStorage();
+
+  // bool _isLogingIn = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _login(BuildContext context) async {
     String email = _emailController.text;
@@ -45,25 +56,29 @@ class LoginForm extends State<LoginPage> {
           headers: {"Content-Type": "application/json"},
           body: jsonEncode({'email': email, 'password': password}));
 
-      final result = await json.decode(response.body);
+      Map<String, dynamic> result = json.decode(response.body);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(result['message'] ?? "login successful"),
+          content: Text("login successful"),
           duration: Duration(seconds: 1),
           backgroundColor: Colors.red.shade800,
         ));
+        await storage.write(key: "token", value: result['token']);
+
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Bill()));
         return;
-        // Navigator.push(
-        //     context, MaterialPageRoute(builder: (context) => BillPage()));
       }
+      final err = await json.decode(response.body);
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("login succesful"),
-        duration: Duration(seconds: 1),
+        content: Text(err['message']),
+        duration: Duration(seconds: 2),
         backgroundColor: Colors.red.shade800,
       ));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("server error"),
+        content: Text(e.toString()),
         duration: Duration(seconds: 1),
         backgroundColor: Colors.red.shade800,
       ));
@@ -79,19 +94,24 @@ class LoginForm extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    var padding2 = Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 30),
-        child: Text(
-          "Login",
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        ));
-    return Form(
+    return Scaffold(
+        body: Form(
       key: _formKey,
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Center(child: padding2),
+            Center(
+              child: Text(
+                "Login",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ),
+            SizedBox(height: 2),
+            Center(
+              child: Text("Welcome to billPro"),
+            ),
+            SizedBox(height: 10),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 16),
               child: TextFormField(
@@ -132,10 +152,6 @@ class LoginForm extends State<LoginPage> {
                     if (_formKey.currentState!.validate()) {
                       _login(context);
                     }
-
-                    // performLogin();
-                    // Navigator.push(context,
-                    //     MaterialPageRoute(builder: (context) => Signup()));
                   },
 
                   // ignore: deprecated_member_use
@@ -146,8 +162,31 @@ class LoginForm extends State<LoginPage> {
                   ),
                   child: const Padding(
                       padding: EdgeInsets.all(20.0), child: Text('Login'))),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Don't have an account? "),
+                  SizedBox(height: 3),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => Signup()),
+                          (route) => false);
+                    },
+                    child: Text(
+                      "Sign up",
+                      style: TextStyle(
+                          color: Colors.blue, fontWeight: FontWeight.bold),
+                    ),
+                  )
+                ],
+              ),
             )
           ]),
-    );
+    ));
   }
 }

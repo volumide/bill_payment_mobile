@@ -82,11 +82,6 @@ class SignUpForm extends State<SignupPage> {
     }
   }
 
-  void logic() {
-    // ignore: avoid_print
-    print("login here");
-  }
-
   String? validation(value, {bool email = false}) {
     if (value == "" || value!.isEmpty) {
       return "required";
@@ -102,77 +97,105 @@ class SignUpForm extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Center(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 30),
-                    child: Text(
-                      "Sign up",
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                    ))),
-            Padding(
-              padding: paddingSettings(),
-              child: TextFormField(
-                  controller: _firstName,
-                  validator: validation,
-                  decoration: textcss("First name")),
-            ),
-            Padding(
-              padding: paddingSettings(),
-              child: TextFormField(
-                  controller: _lastName,
-                  validator: validation,
-                  decoration: textcss("Last name")),
-            ),
-            Padding(
-              padding: paddingSettings(),
-              child: TextFormField(
-                controller: _email,
-                validator: (value) => validation(value, email: true),
-                keyboardType: TextInputType.emailAddress,
-                decoration: textcss("Email"),
-              ),
-            ),
-            Padding(
-                padding: paddingSettings(),
-                child: TextFormField(
-                    controller: _phone,
-                    validator: validation,
-                    decoration: textcss("Phone"),
-                    keyboardType: TextInputType.number)),
-            Padding(
-              padding: paddingSettings(),
-              child: TextFormField(
-                  controller: _password,
-                  validator: validation,
-                  obscureText: true,
-                  decoration: textcss("Password")),
-            ),
-            Padding(
-              padding: paddingSettings(),
-              child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      signup();
-                    }
-                  },
-                  // ignore: deprecated_member_use
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    shape: StadiumBorder(),
-                    backgroundColor: Colors.red.shade500,
+    return Scaffold(
+        body: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    "Sign Up",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
-                  child: const Padding(
-                      padding: EdgeInsets.all(20.0), child: Text('Sign up'))),
-            )
-          ],
-        ));
+                ),
+                SizedBox(height: 2),
+                Center(
+                  child: Text("Sign up to create an account"),
+                ),
+                SizedBox(height: 10),
+                Padding(
+                  padding: paddingSettings(),
+                  child: TextFormField(
+                      controller: _firstName,
+                      validator: validation,
+                      decoration: textcss("First name")),
+                ),
+                Padding(
+                  padding: paddingSettings(),
+                  child: TextFormField(
+                      controller: _lastName,
+                      validator: validation,
+                      decoration: textcss("Last name")),
+                ),
+                Padding(
+                  padding: paddingSettings(),
+                  child: TextFormField(
+                    controller: _email,
+                    validator: (value) => validation(value, email: true),
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: textcss("Email"),
+                  ),
+                ),
+                Padding(
+                    padding: paddingSettings(),
+                    child: TextFormField(
+                        controller: _phone,
+                        validator: validation,
+                        decoration: textcss("Phone"),
+                        keyboardType: TextInputType.number)),
+                Padding(
+                  padding: paddingSettings(),
+                  child: TextFormField(
+                      controller: _password,
+                      validator: validation,
+                      obscureText: true,
+                      decoration: textcss("Password")),
+                ),
+                Padding(
+                  padding: paddingSettings(),
+                  child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          signup();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: StadiumBorder(),
+                        backgroundColor: Colors.red.shade500,
+                      ),
+                      child: const Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text('Sign up'))),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Already have an account? "),
+                      SizedBox(height: 3),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => Login()),
+                              (route) => false);
+                        },
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                              color: Colors.blue, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            )));
   }
 
   EdgeInsets paddingSettings() =>
