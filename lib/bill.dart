@@ -45,9 +45,10 @@ class BillContainer extends State<BillState> {
 
   Future fetchProviders() async {
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:5000/api/services'),
+      Uri.parse('https://wynk-api.onrender.com/api/services'),
       headers: {"Content-Type": "application/json"},
     );
+
     final result = json.decode(response.body);
     if (response.statusCode < 400) {
       data = result;

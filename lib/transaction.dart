@@ -50,7 +50,7 @@ class TransactionContainer extends State<TransactionState> {
 
     try {
       final response = await http.post(
-          Uri.parse('http://10.0.2.2:5000/api/electricity/payment'),
+          Uri.parse('https://wynk-api.onrender.com/api/electricity/payment'),
           headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer $token"
